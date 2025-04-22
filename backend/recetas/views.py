@@ -13,10 +13,12 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime
 from django.core.files.storage import FileSystemStorage
+from seguridad.decorators import logueado
 
 # Create your views here.
 class Clase1(APIView):
      
+     @logueado()
      def post(self, request):
     # Validaciones de campos obligatorios
         campos_obligatorios = ['nombre', 'tiempo', 'descripcion', 'categoria_id']
