@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'categorias',
     'recetas',
-    'contactos'
+    'contactos',
+    'seguridad',
 ]
 
 MIDDLEWARE = [
