@@ -14,5 +14,6 @@ from recetas.models import Recetas
 
 # Create your views here.
 
-def  Clase1(request):
-    return render(request, 'seguridad/registro.html')
+class Clase1(APIView):
+    def post(self, request):
+        return HttpResponse("METODO POST")
