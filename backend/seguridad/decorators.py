@@ -7,21 +7,28 @@ import time
 def logueado():
     def metodo(func):
         @wraps(func)
-        def _decorator(request,*args, **kwargs):
-            request = args[0]
-            if not request.headers.get('Authorization') or request.headers.get('Authorization') == None:
-                return JsonResponse({"error":"No se ha enviado el token"},status=HTTPStatus.UNAUTHORIZED)
-            header = request.headers.get("Authorization").split(" ")
-            
+        def _decorator(self, request, *args, **kwargs):  # ← ¡Aquí agregamos `self`!
+            auth_header = request.headers.get("Authorization")
+
+            if not auth_header:
+                return JsonResponse({"error": "No se ha enviado el token"}, status=HTTPStatus.UNAUTHORIZED)
+
             try:
-                resuelto =jwt.decode(header[1], settings.SECRET_KEY, algorithms=["HS512"])
+                tipo, token = auth_header.split(" ")
+                if tipo != "Bearer":
+                    return JsonResponse({"error": "Tipo de token no válido"}, status=HTTPStatus.UNAUTHORIZED)
+            except ValueError:
+                return JsonResponse({"error": "Formato de token incorrecto"}, status=HTTPStatus.UNAUTHORIZED)
+
+            try:
+                resuelto = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS512"])
             except Exception as e:
-                return JsonResponse({"error":"Token no valido"},status=HTTPStatus.UNAUTHORIZED)    
-            
+                return JsonResponse({"error": "Token no válido"}, status=HTTPStatus.UNAUTHORIZED)
+
             if int(resuelto["exp"]) > int(time.time()):
-                
-             return func(*args, **kwargs)
+                return func(self, request, *args, **kwargs)  # ← Ejecutamos la función original correctamente
             else:
-                return JsonResponse({"error":"Token expirado"},status=HTTPStatus.UNAUTHORIZED)
+                return JsonResponse({"error": "Token expirado"}, status=HTTPStatus.UNAUTHORIZED)
+
         return _decorator
     return metodo
