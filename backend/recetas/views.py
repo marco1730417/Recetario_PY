@@ -10,6 +10,10 @@ from .serializers import *
 from django.utils.text import slugify
 from django.utils.dateformat import DateFormat
 from dotenv import load_dotenv
+from django.conf import settings
+from functools import wraps
+from jose import jwt
+
 import os
 from datetime import datetime
 from django.core.files.storage import FileSystemStorage
@@ -59,6 +63,14 @@ class Clase1(APIView):
         except Exception as e:
             return JsonResponse({"estado": "error", "mensaje": "Se produjo un error al intentar subir el archivo"}, status=HTTPStatus.BAD_REQUEST)
 
+       # Obtener el ID del usuario desde el token
+        try:
+            header = request.headers.get("Authorization").split(" ")
+            resuelto = jwt.decode(header[1], settings.SECRET_KEY, algorithms=["HS512"])
+        except Exception as e:
+            return JsonResponse({"estado": "error", "mensaje": "Token inválido o expirado"}, status=HTTPStatus.UNAUTHORIZED)
+
+
     # Crear la receta en la base de datos
         try:
             Recetas.objects.create(
@@ -67,8 +79,8 @@ class Clase1(APIView):
             descripcion=request.data.get('descripcion'),
             categoria_id=request.data.get('categoria_id'),
             fecha=fecha,
-            foto=foto_nombre  # Guarda el nombre del archivo
-        )
+            foto=foto_nombre , # Guarda el nombre del archivo
+            user_id=resuelto['id'])
             return JsonResponse({"estado": "ok", "mensaje": "Se creó el registro exitosamente"}, status=HTTPStatus.CREATED)
 
         except Exception as e:
@@ -86,7 +98,12 @@ class Clase2(APIView):
         try:
             data = Recetas.objects.get(id=id)
             datos_json= RecetaSerializer(data)
-            return JsonResponse({"data":{"id":data.id, "nombre":data.nombre, "slug":data.slug,"tiempo":data.tiempo,"foto":data.foto,"descripcion":data.descripcion,"fecha":DateFormat(data.fecha).format('d/m/Y'),"categoria":data.categoria.nombre,"categoria_id":data.categoria_id ,"imagen":f"{os.getenv('BASE_URL')}uploads/recetas/{data.foto}" }, "estado":"ok"}, status=HTTPStatus.OK)
+            return JsonResponse({"data":{"id":data.id, "nombre":data.nombre, "slug":data.slug,"tiempo":data.tiempo,"foto":data.foto,"descripcion":data.descripcion,
+                                         "fecha":DateFormat(data.fecha).format('d/m/Y'),"categoria":data.categoria.nombre,
+                                         "categoria_id":data.categoria_id ,"imagen":f"{os.getenv('BASE_URL')}uploads/recetas/{data.foto}"
+                                         ,"user_id":data.user_id,
+                                         "user":data.user.first_name 
+                                         }, "estado":"ok"}, status=HTTPStatus.OK)
             #return JsonResponse({"estado":"ok", "data":datos_json.data}, status=HTTPStatus.OK)
         except Recetas.DoesNotExist:
             raise Http404

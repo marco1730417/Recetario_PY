@@ -1,10 +1,11 @@
 from django.db import models
 from autoslug import AutoSlugField
 from categorias.models import Categorias
-
+from django.contrib.auth.models import User
 # Create your models here.
 
 class Recetas(models.Model):
+    user = models.ForeignKey(User,models.DO_NOTHING,default=1)
     categoria = models.ForeignKey(Categorias, models.DO_NOTHING)
     nombre = models.CharField(max_length=255,null=False)
     slug = AutoSlugField(populate_from='nombre',max_length=100)

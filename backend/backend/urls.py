@@ -10,7 +10,8 @@ urlpatterns = [
     path('api/v1/', include('categorias.urls')),
     path('api/v1/', include('recetas.urls')),
     path('api/v1/', include('contactos.urls')),
-    path('api/v1/', include('seguridad.urls'))
+    path('api/v1/', include('seguridad.urls')),
+    path('api/v1/', include('recetas_helper.urls'))
     
     
 ]
