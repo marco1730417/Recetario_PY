@@ -13,6 +13,7 @@ pip install python-dotenv
 pip install djangorestframework
 pip install mysqlclient
 pip install django-autoslug
+pip install django-cors-headers
 
 # a cada libreria instalada es bueno crear un archivo requirements
 
