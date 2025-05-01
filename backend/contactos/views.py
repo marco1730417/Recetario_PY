@@ -12,7 +12,28 @@ from contactos.models import Contactos
 #llamamos a utilidades
 
 from utilidades import utilidades
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 class Clase1(APIView):
+     
+
+     @swagger_auto_schema(
+        operation_description="Endpoint para Contacto",
+        responses={200:"Success",400:"Bad Request"},
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'nombre':openapi.Schema(type=openapi.TYPE_STRING,description="Nombre"),
+                'correo':openapi.Schema(type=openapi.TYPE_STRING,description="Email"),
+                'telefono':openapi.Schema(type=openapi.TYPE_STRING,description="telefono"),
+                'mensaje':openapi.Schema(type=openapi.TYPE_STRING,description="Mensaje")
+                 },
+                 required=['nombre','correo','telefono']
+                )
+            
+        )
      
      def post(self, request):
          if(request.data.get('nombre')==None):
